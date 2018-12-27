@@ -1,1 +1,1 @@
-# zte_gpon_autoreg
+# zte_gpon_autoreg manual
