@@ -21,7 +21,7 @@ device_params = {'ip': '1.1.1.1', 'username': 'test1', 'password': 'test2'}
 '''
 Создание подключения к olt
 '''
-def olt_ssh(ip, username, password):
+def zte_ssh(ip, username, password):
     '''
     input: ip адрес и параметры
     авторизации для olt zte
@@ -84,44 +84,47 @@ gpon-onu_1/1/2:1         HWTC222            unknown
 gpon-onu_1/2/1:1         HWTC333            unknown
 
 
-def cvlan_port(olt_ssh, uncfg_onu_dict, CVLAN_START):
+def params_gen(olt_ssh, uncfg_onu_dict, CVLAN_START):
 '''
-input: olt_connection, список незарегистрированных ону, старт диапазона для cvlan
+input: olt_connection, словарь незарегистрированных ону, старт диапазона для cvlan
 output: словарь вида uncfg_onu_dict = {'1/1/2': [{'HWTC111': [7, 133]}, {'HWTC222': [12, 137]}], '1/2/1': [{'HWTC333': [5, 3077]}]}
 '''
 olt_connection.sendline('terminal length 0')
 olt_connection.expect('#')
 for pon_port in uncfg_onu_dict.keys(): # для каждого пон порта ищем список зарегистрированных ону из конфига
-    print(pon_port)
     gpon_port = int(pon_port.split('/')[-1]) # pon_port - полный номер(1/1/2), gpon_port - номер порта на плате(2)
+    #получаем конфиг пон порта в виде списка строк
     olt_connection.sendline('show running-config interface gpon-olt_{}'.format(pon_port))
     olt_connection.expect('#')
     run_cfg_raw = olt_connection.before.decode('utf-8')
     run_cfg_raw = run_cfg_raw.split('\n')
+    #получаем список зарегистрированных ону
     cur_onu_list = []
     for line in run_cfg_raw:
         if 'type' in line:
             cur_onu_list.append(line) # зарегистрированные ону
+    #получаем номера зарег-х ону, считаем свободные порты
     cur_onu_nums = []
-    for line in cur_onu_list: # собираем номера зарегистрированных ону
+    for line in cur_onu_list:
         cur_onu_nums.append(int(line.split()[1]))
-    all_onu_nums = list(range(1,129)) # возможные номера ону
+    all_onu_nums = list(range(1,129))
     for num in cur_onu_nums:
-        all_onu_nums.remove(num) # из списка возможных номеров убираем зарегистрированные и получаем список свободных портов
-    for sn in uncfg_onu_dict[pon_port]:  # проходимся по списку из незарегистрированных ону на пон порту
-        for value in sn:         # записываем первый свободный слот для каждой незарегистрированной ону
+        all_onu_nums.remove(num)
+    #назначаем свободный порт и cvlan незарегистрированным ону
+    for sn in uncfg_onu_dict[pon_port]:
+        for value in sn:
             free_onu_num = all_onu_nums.pop(0)
-            cvlan = CVLAN_START + (128 * gpon_port - 1) + free_onu_num # расчет cvlan на основании свободного порта и консанты
-            sn[value] = [free_onu_num] # назначение номера для onu
-            sn[value].append(cvlan)  # назначение cvlan для onu
+            cvlan = CVLAN_START + (128 * gpon_port - 1) + free_onu_num
+            sn[value] = [free_onu_num]
+            sn[value].append(cvlan)
 
-
+    return uncfg_onu_dict
 #test
 #pon_port = 1/1/2
 #CVLAN_START = 1000
 #cur_onu_list
 
-uncfg_onu_dict = {'1/1/2': [{'HWTC111': []}, {'HWTC222': []}], '1/2/1': [{'HWTC333': []}]}
+uncfg_onu_dict = {'1/1/2': [{'HWTC111': [1,1001]}, {'HWTC222': [5,1006]}], '1/2/1': [{'HWTC333': [12,3031]}]}
 
 1/1/4
 onu 1 type GPON sn HWTC1E4F089D
