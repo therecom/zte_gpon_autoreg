@@ -146,3 +146,23 @@ const = 1000
 const + (128 * (PORT_NUM - 1)) + ONU_NUM
 для ону 1/1/5:32 cvlan = 1000 + (128 * (5 - 1)) + 32 = 1554
 
+
+def generate_cfg_from_template(template, data):
+    env = Environment(loader=FileSystemLoader('.'), trim_blocks=True)
+
+    onu_template = env.get_template(template)
+    onu_config = onu_template.render(data)
+
+    print(onu_config)
+
+
+for port in uncfg_onu_dict:
+    print(port)
+    for onu in uncfg_onu_dict[port]:
+        for sn in onu:
+            onu_num, cvlan = onu[sn]
+            data = {'port':port, 'onu_num':onu_num, 'cvlan': cvlan, 'sn': sn}
+            #print('gpon-olt_{}, onu {}, sn {}, cvlan {}'
+            #.format(port, onu_num, sn, cvlan))
+            generate_cfg_from_template(
+
