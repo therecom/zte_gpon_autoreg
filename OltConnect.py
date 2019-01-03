@@ -149,9 +149,17 @@ const + (128 * (PORT_NUM - 1)) + ONU_NUM
 
 def generate_cfg_from_template(template, data):
     env = Environment(loader=FileSystemLoader('.'), trim_blocks=True)
+    onu_template = env.get_template(template)
+
+    onu_config = onu_template.render(data=data)
+    return onu_config
+
+
+def generate_cfg_from_template(template, data):
+    env = Environment(loader=FileSystemLoader('.'), trim_blocks=True)
 
     onu_template = env.get_template(template)
-    onu_config = onu_template.render(data)
+    onu_config = onu_template.render(data=data)
 
     print(onu_config)
 

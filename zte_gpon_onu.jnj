@@ -1,0 +1,21 @@
+#interface gpon-olt_{{ port }}
+#
+{% for port, onus in data.items() %}
+{% for onu in onus %}
+{% for sn, params in onu.items() %}
+interface gpon-olt_{{port}}
+onu {{params.0}} type GPON sn {{sn}}
+onu {{params.0}} profile line line-gpon
+exit
+interface gpon-onu_{{port}}:{{params.0}}
+switchport mode hybrid vport 1
+switchport default vlan {{params.1}} vport 1
+exit
+pon-onu-mng gpon-onu_{{port}}:{{params.0}}
+gemport 1 flow 1
+vlan port eth_0/1 mode tag vlan {{params.1}}
+loop-detect ethuni eth_0/1 enable
+exit
+{%endfor%}   
+{%endfor%}
+{%endfor%}
