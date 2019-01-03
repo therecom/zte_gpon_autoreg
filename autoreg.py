@@ -1,7 +1,10 @@
+#!/usr/bin/env python3.6
+# -*- coding: utf-8 -*-
+
 import time
 import pexpect
 import re
-from jinja2 import Environment, FileSystemLoader
+#from jinja2 import Environment, FileSystemLoader
 
 '''
 Создание подключения к olt
@@ -33,7 +36,7 @@ def sh_onu_uncfg(olt_ssh):
     '''
     olt_ssh.sendline('sho gp on u')
     olt_ssh.expect('#')
-    show_output = ssh.before.decode('utf-8')
+    show_output = olt_ssh.before.decode('utf-8')
     if 'No related' in show_output:
         uncfg_onu_dict = False
     else:
@@ -77,30 +80,62 @@ def params_gen(olt_ssh, uncfg_onu_dict, CVLAN_START):
         for sn in uncfg_onu_dict[pon_port]:
             for value in sn:
                 free_onu_num = all_onu_nums.pop(0)
-                cvlan = CVLAN_START + (128 * gpon_port - 1) + free_onu_num
+                cvlan = CVLAN_START + (128 * (gpon_port - 1)) + free_onu_num
                 sn[value] = [free_onu_num]
                 sn[value].append(cvlan)
     return uncfg_onu_dict
 
 
-def generate_cfg_from_template(template, data):
-    env = Environment(loader=FileSystemLoader('.'), trim_blocks=True)
-    onu_template = env.get_template(template)
+#def generate_cfg_from_template(template, data):
+#    env = Environment(loader=FileSystemLoader('.'), trim_blocks=True)
+#    onu_template = env.get_template(template)
+#
+#    onu_config = onu_template.render(data=data)
+#    return onu_config
 
-    onu_config = onu_template.render(data=data)
-    return onu_config
-
+def onu_reg(ssh, port, sn, onu_num, cvlan):
+    ssh.sendline('interface gpon-olt_{}'.format(port))
+    ssh.expect('#')
+    ssh.sendline('onu {} type GPON sn {}'.format(onu_num, sn))
+    ssh.expect('[Success]')
+    ssh.sendline('onu {} profile  line line-gpon'.format(onu_num))
+    ssh.expect('#')
+    ssh.sendline('exit')
+    ssh.expect('#')
+    ssh.sendline('interface gpon-onu_{}:{}'.format(port, onu_num))
+    ssh.expect('#')
+    ssh.sendline('switchport mode hybrid vport 1')
+    ssh.expect('#')
+    ssh.sendline('switchport default vlan {} vport 1'.format(cvlan))
+    ssh.expect('#')
+    ssh.sendline('exit')
+    ssh.expect('#')
+    ssh.sendline('pon-onu-mng gpon-onu_{}:{}'.format(port, onu_num))
+    ssh.expect('#')
+    ssh.sendline('gemport 1 flow 1')
+    ssh.expect('#')
+    ssh.sendline('vlan port eth_0/1 mode tag vlan {}'.format(cvlan))
+    ssh.expect('#')
+    ssh.sendline('loop-detect ethuni eth_0/1 enable')
+    ssh.expect('#')
 
 if __name__ == '__main__':
 
     device_params = {'ip': '1.1.1.1', 'username': 'test1', 'password': 'test2'}
     CVLAN_START = 1000
-
     ssh_connection = zte_ssh(**device_params)
     uncfg_onu_dict = sh_onu_uncfg(ssh_connection)
-    onu_params = params_gen(ssh_connection, uncfg_onu_dict, CVLAN_START)
+    if uncfg_onu_dict:
+        onu_params = params_gen(ssh_connection, uncfg_onu_dict, CVLAN_START)
+#        onu_config = generate_cfg_from_template('zte_gpon_onu.jnj', onu_params)
+#        ssh_connection.sendline(onu_config)
+        for port in uncfg_onu_dict:
+            for onu in uncfg_onu_dict[port]:
+                for sn in onu:
+                    onu_num, cvlan = onu[sn]
+                    onu_reg(ssh_connection, port, sn, onu_num, cvlan)
+        ssh_connection.close()
+    else:
+        print('No unconfigured onus')
+        ssh_connection.close()
 
-    onu_config = generate_cfg_from_template('zte_gpon_onu.jnj', onu_params)
-
-    ssh_connection.sendline(onu_config)
-    ssh_connection.close()

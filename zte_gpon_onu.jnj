@@ -3,7 +3,7 @@
 {% for sn, params in onu.items() %}
 interface gpon-olt_{{port}}
 onu {{params.0}} type GPON sn {{sn}}
-onu {{params.0}} profile line line-gpon
+onu {{params.0}} profile  line line-gpon
 exit
 interface gpon-onu_{{port}}:{{params.0}}
 switchport mode hybrid vport 1
