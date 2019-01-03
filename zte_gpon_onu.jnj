@@ -1,5 +1,3 @@
-#interface gpon-olt_{{ port }}
-#
 {% for port, onus in data.items() %}
 {% for onu in onus %}
 {% for sn, params in onu.items() %}
