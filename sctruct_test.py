@@ -1,5 +1,5 @@
 """Main module"""
-import logging
+# import logging
 import paramiko
 
 
@@ -17,10 +17,10 @@ class Olt(paramiko.SSHClient):
         try:
             super().connect(self.host, username=self.username,
                             password=self.password)
-        except paramiko.AuthentificationException:  # FIXME log or something
-            pass  # FIXME
-        except paramiko.SSHException:  # FIXME log or something
-            pass  # FIXME
+        except paramiko.AuthentificationException:
+            print("Authentification error occured.")
+        except paramiko.SSHException:
+            print("Connection error occuredi.")
 
         pass  # TODO
 
@@ -36,8 +36,8 @@ class Olt(paramiko.SSHClient):
         pass  # TODO
 
     def register_onu(self):
-        onu_list = self.get_uncfg_onu()
-        free_slots = self.get_free_slots()
+        # onu_list = self.get_uncfg_onu()
+        # free_slots = self.get_free_slots()
 
         # FIXME
 
