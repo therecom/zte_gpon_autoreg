@@ -8,6 +8,7 @@ class Olt(paramiko.SSHClient):
     SLOTS = set(range(1, 129))
 
     def __init__(self, host, **kwargs):
+        self.host = host
         self.username = kwargs['username']
         self.password = kwargs['password']
         super().__init__()
@@ -17,10 +18,10 @@ class Olt(paramiko.SSHClient):
         try:
             super().connect(self.host, username=self.username,
                             password=self.password)
-        except paramiko.AuthentificationException:
-            print("Authentification error occured.")
+        except paramiko.AuthenticationException:
+            print("Authentication error occured.")
         except paramiko.SSHException:
-            print("Connection error occuredi.")
+            print("Connection error occured.")
 
         pass  # TODO
 
