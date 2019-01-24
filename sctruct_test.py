@@ -1,18 +1,27 @@
 """Main module"""
+import logging
+import paramiko
 
 
-class Olt:
+class Olt(paramiko.SSHClient):
 
     SLOTS = set(range(1, 129))
 
-    def __init__(self, auth_params):
-        self.connection = None
-        self.uncfg_onu = None
-        self.free_slots = None
+    def __init__(self, host, **kwargs):
+        self.username = kwargs['username']
+        self.password = kwargs['password']
+        super().__init__()
 
     def connect(self):
-        """Tries to make ssh connection. Returns self.connection in case of
-        success """
+        """Tries to make ssh connection. Log if errors occurs """
+        try:
+            super().connect(self.host, username=self.username,
+                            password=self.password)
+        except paramiko.AuthentificationException:  # FIXME log or something
+            pass  # FIXME
+        except paramiko.SSHException:  # FIXME log or something
+            pass  # FIXME
+
         pass  # TODO
 
     def get_uncfg_onu(self):
@@ -25,6 +34,15 @@ class Olt:
         slots as values"""
         # pon_ports = keys(self.uncfg_onu)
         pass  # TODO
+
+    def register_onu(self):
+        onu_list = self.get_uncfg_onu()
+        free_slots = self.get_free_slots()
+
+        # FIXME
+
+        self.close()
+        pass
 
 
 def main():
