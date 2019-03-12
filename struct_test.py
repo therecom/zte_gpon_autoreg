@@ -8,8 +8,9 @@ class Olt(paramiko.SSHClient):
     SLOTS = set(range(1, 129))
 
     def __init__(self, host, **kwargs):
-        self.username = kwargs['username']
-        self.password = kwargs['password']
+        self.username = username#kwargs['username']
+        self.password = password#kwargs['password']
+        self.host = host
         super().__init__()
 
     def connect(self):
