@@ -58,7 +58,8 @@ class OltZTE(paramiko.SSHClient, Olt):
         except paramiko.SSHException:
             print("Connection error occured.")
 
-        except paramiko.TimeouteError:
+        # FIXME: there is not such exception
+        except paramiko.TimeoutError:
             print("Timeout error occured.")
 
         # FIXME
