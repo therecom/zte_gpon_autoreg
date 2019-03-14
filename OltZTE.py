@@ -60,17 +60,12 @@ class OltZTE(paramiko.SSHClient, Olt):
                         uncfg_onu_dict[port].append({sn:[]})
             return uncfg_onu_dict
 
-    def get_free_slots(self):
+    def get_free_slots(self, uncfg_onu_dict, CVLAN_START):
         """Returns dict with PON ports as keys and sorted lists of free
-        slots as values"""
-        # pon_ports = keys(self.uncfg_onu)
-        pass  # FIXME
-
-    def params_gen(self, uncfg_onu_dict, CVLAN_START):
-        '''
+        slots as values.
         input: olt_ss, словарь незарегистрированных ону, старт диапазона для cvlan
         output: словарь вида uncfg_onu_dict = {'1/1/2': [{'HWTC111': [7, 133]}, {'HWTC222': [12, 137]}], '1/2/1': [{'HWTC333': [5, 3077]}]}
-        '''
+        """
         for pon_port in uncfg_onu_dict.keys(): # для каждого пон порта ищем список зарегистрированных ону из конфига
             gpon_port = int(pon_port.split('/')[-1]) # pon_port - полный номер(1/1/2), gpon_port - номер порта на плате(2)
             #получаем конфиг пон порта в виде списка строк
@@ -107,12 +102,20 @@ class OltZTE(paramiko.SSHClient, Olt):
         onu_config = onu_template.render(data=data)
         return onu_config
 
-
-
-    def register_onu(self):
-        # onu_list = self.get_uncfg_onu()
-        # free_slots = self.get_free_slots()
-        pass  # FIXME
+    def register_onu(self, CVLAN_START, template):
+        uncfg_onu_dict = self.get_uncfg_onu()
+        if uncfg_onu_dict:
+            reg_data = self.get_free_slots(uncfg_onu_dict, CVLAN_START)
+            onu_config = self.generate_cfg_from_template(template, reg_data)
+            with super().invoke_shell() as ssh:
+                ssh.send('conf t\n')
+                ssh.send(onu_config)
+                time.sleep(5)
+                result =  ssh.recv(5000).decode('utf-8')
+            print(result)
+        else:
+            print('No uncfg onu')
+        #pass  # FIXME
 
     def get_onu_information(self, onu):
         pass  # FIXME
