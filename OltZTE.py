@@ -34,8 +34,20 @@ class OltZTE(paramiko.SSHClient, Olt):
         except paramiko.TimeouteError:
             print("Timeout error occured.")
 
+        with super().invoke_shell() as ssh:
+            ssh.send('terminal length 0\n')
+            time.sleep(1)
+
         # FIXME
         # logging
+
+    def send_command(self, command):
+        with super().invoke_shell() as ssh:
+            ssh.send('{}\n'.format(command))
+            time.sleep(1)
+            output = ssh.recv(5000).decode('utf-8')
+
+        return output
 
     def get_uncfg_onu(self):
         """Returns dict with PON ports as keys and uncfg ONUs' sn's lists as
@@ -118,7 +130,40 @@ class OltZTE(paramiko.SSHClient, Olt):
         #pass  # FIXME
 
     def get_onu_information(self, onu):
-        pass  # FIXME
+
+        onu_info = {}
+        re_ifindex = '(\d+/\d+/\d+:\d+)'
+        re_state = 'Phase state:\s+(\w+)'
+        re_uptime = 'Online Duration:\s+(\d.+)'
+        re_offline = '2\d{3}-\d\d-\d\d\s\d\d:\d\d:\d\d'
+        re_lan_status = 'Operate status:(\w+)'
+        re_lan_speed = 'Speed status:\s+(\S.+)'
+        re_rx = '\s(\-.+\(dbm\))'
+
+        ifindex_raw = self.send_command('show gpon onu by sn {}'.format(onu))
+        ifindex = re.search(re_ifindex, ifindex_raw).group()
+
+        detail_info = self.send_command('show gpon onu detail-info gpon-onu_{}'.format(ifindex))
+        lan_port = self.send_command('show gpon remote-onu interface eth gpon-onu_{}'.format(ifindex))
+        onu_rx = self.send_command('show pon power onu-rx gpon-onu_{}'.format(ifindex))
+        olt_rx = self.send_command('show pon power olt-rx gpon-onu_{}'.format(ifindex))
+
+        onu_info['state'] = re.search(re_state, detail_info).groups()[0]
+        if onu_info['state'] == 'working':
+            onu_info['uptime'] = (re.search(re_uptime, detail_info).groups()[0]).strip()
+            onu_info['lan_state'] = re.search(re_lan_status, lan_port).groups()[0]
+            onu_info['lan_speed'] = (re.search(re_lan_speed, lan_port).groups()[0]).strip()
+            onu_info['onu_rx'] = re.search(re_rx, onu_rx).groups()[0]
+            onu_info['olt_rx'] = re.search(re_rx, olt_rx).groups()[0]
+        else:
+            onu_info['last_online'] = re.findall(re_offline, detail_info)[-1]
+            onu_info['lan_state'] = 'N/A'
+            onu_info['lan_speed'] = 'N/A'
+            onu_info['onu_rx'] = 'N/A'
+            onu_info['olt_rx'] = 'N/A'
+
+        print(onu_info)
+        #pass  # FIXME
 
     def get_mac_table(self):
         with super().invoke_shell() as ssh:
