@@ -1,0 +1,74 @@
+Прошивки: 
+zte V1.2.5P3
+bdcom 36039
+
+запрос по маку/серийному номеру
+md/merch fcfa.f796.3da2/ZTEGC1307CDF
+----------
+
+STATE:
+zte:
+show gpon onu by sn ZTEGC1307CDF
+show gpon onu detail-info gpon-onu_1/1/1:1
+
+bdcom:
+show epon onu-information mac-address fcfa.f796.3da2
+---------
+
+UPTIME:
+zte:
+show gpon onu detail-info gpon-onu_1/1/1:1
+
+bdcom:
+show epon active-onu mac-address fcfa.f796.3da2
+--------
+
+LAST_ONLINE:
+zte:
+show gpon onu detail-info gpon-onu_1/1/1:1
+
+bdcom
+show epon active-onu mac-address fcfa.f796.3dee
+--------
+
+LAN_PORT_STATE
+zte:
+show gpon remote-onu interface eth gpon-onu_1/1/1:1
+
+bdcom:
+show epon interface epON 0/1:1 onu port 1 state
+-------
+
+LAN_PORT_SPEED
+zte:
+show gpon remote-onu interface eth gpon-onu_1/1/1:1
+
+bdcom:
+show epon interface epON 0/1:1 onu port 1 state
+(на bdcom такой инфы может и не быть)
+-------
+
+SIGNAL RX ON ONU:
+zte:
+show pon power onu-rx gpon-onu_1/1/1:1
+
+bdcom:
+show epon interface epON 0/1:1 onu ctc optical-transceiver-diagnosis
+-------
+
+SIGNAL RX FROM ONU:
+zte:
+show pon power olt-rx gpon-onu_1/1/1:1
+
+bdcom
+show epon optical-transceiver-diagnosis interface epON 0/1:1
+-------
+
+LAN_MAC (WITH VLAN):
+zte:
+show mac gpon onu gpon-onu_1/1/1:1
+
+bdcom:
+show mac address-table interface epON 0/1:1
+-------
+
