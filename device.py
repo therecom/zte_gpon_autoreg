@@ -1,5 +1,8 @@
-from abc import ABC, abstractmethod
-import paramiko
+from paramiko import SSHClient
+from paramiko.ssh_exception import AuthenticationException
+from paramiko.ssh_exception import SSHException
+from paramiko.ssh_exception import BadHostKeyException
+
 """Main module"""
 
 
@@ -7,36 +10,7 @@ class Device:
     pass
 
 
-class Olt(ABC, Device):
-
-    @abstractmethod
-    def connect(self):
-        pass
-
-    @abstractmethod
-    def get_uncfg_onu(self):
-        pass
-
-    @abstractmethod
-    def get_free_slots(self):
-        pass
-
-    @abstractmethod
-    def register_onu(self):
-        pass
-
-    @abstractmethod
-    def get_onu_information(self, onu):
-        pass
-
-
-class OltBDCOM:
-    pass
-
-
-class OltZTE(paramiko.SSHClient, Olt):
-
-    SLOTS = set(range(1, 129))
+class Olt(SSHClient, Device):
 
     def __init__(self, host, username='', password=''):
         self.host = host
@@ -52,18 +26,32 @@ class OltZTE(paramiko.SSHClient, Olt):
                             username=self.username,
                             password=self.password)
 
-        except paramiko.AuthenticationException:
+        except AuthenticationException:
             print("Authentication error occured.")
 
-        except paramiko.SSHException:
+        except SSHException:
             print("Connection error occured.")
 
-        # FIXME: there is not such exception
-        except paramiko.TimeoutError:
-            print("Timeout error occured.")
+        except BadHostKeyException:
+            print("Host key error occured.")
 
         # FIXME
         # logging
+
+
+class OltBDCOM(Olt):
+    pass
+
+
+class OltZTE(Olt):
+
+    SLOTS = set(range(1, 129))
+
+    def run_command(self, command):
+        pass
+
+    def run_commands(self, commands):
+        pass
 
     def get_uncfg_onu(self):
         """Returns dict with PON ports as keys and uncfg ONUs' sn's lists as
