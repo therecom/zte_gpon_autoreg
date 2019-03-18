@@ -41,10 +41,14 @@ class OltZTE(paramiko.SSHClient, Olt):
         # FIXME
         # logging
 
-    def send_command(self, command):
+    def send_commands(self, commands, timeout=1):
+    ''' input:  tuple
+        output: str
+    '''
         with super().invoke_shell() as ssh:
-            ssh.send('{}\n'.format(command))
-            time.sleep(1)
+            for command in commands:
+                ssh.send('{}\n'.format(command))
+            time.sleep(timeout)
             output = ssh.recv(5000).decode('utf-8')
 
         return output
@@ -52,25 +56,22 @@ class OltZTE(paramiko.SSHClient, Olt):
     def get_uncfg_onu(self):
         """Returns dict with PON ports as keys and uncfg ONUs' sn's lists as
         values: {pon_port1: [sn1, sn2, snN], ...}"""
-        with super().invoke_shell() as ssh:
-            ssh.send('terminal length 0\n')
-            ssh.send('show gp on u\n')
-            time.sleep(1)
-            output = ssh.recv(5000).decode('utf-8')
-            if 'No related' in output:
-                uncfg_onu_dict = False
-            else:
-                regex1 = 'u_(?P<PON_PORT>\S+):\d\s+(?P<SN>\S+)'
-                uncfg_onu_dict = {}
-                uncfg_onu_raw = re.finditer(regex1, output)
-                for match in uncfg_onu_raw:
-                    port = match.group('PON_PORT')
-                    sn = match.group('SN')
-                    if uncfg_onu_dict.get(port) == None:
-                        uncfg_onu_dict[port] = [{sn:[]}]
-                    else:
-                        uncfg_onu_dict[port].append({sn:[]})
-            return uncfg_onu_dict
+        UNCFG_ONU = ('show gp on u',)
+        output = self.send_commands(UNCFG_ONU)
+        if 'No related' in output:
+            uncfg_onu_dict = False
+        else:
+            re_uncfg_onu = 'u_(?P<PON_PORT>\S+):\d\s+(?P<SN>\S+)'
+            uncfg_onu_dict = {}
+            uncfg_onu_raw = re.finditer(re_uncfg_onu, output)
+            for match in uncfg_onu_raw:
+                port = match.group('PON_PORT')
+                sn = match.group('SN')
+                if uncfg_onu_dict.get(port) == None:
+                    uncfg_onu_dict[port] = [{sn:[]}]
+                else:
+                    uncfg_onu_dict[port].append({sn:[]})
+        return uncfg_onu_dict
 
     def get_free_slots(self, uncfg_onu_dict, CVLAN_START):
         """Returns dict with PON ports as keys and sorted lists of free
@@ -81,12 +82,14 @@ class OltZTE(paramiko.SSHClient, Olt):
         for pon_port in uncfg_onu_dict.keys(): # для каждого пон порта ищем список зарегистрированных ону из конфига
             gpon_port = int(pon_port.split('/')[-1]) # pon_port - полный номер(1/1/2), gpon_port - номер порта на плате(2)
             #получаем конфиг пон порта в виде списка строк
-            with super().invoke_shell() as ssh:
-                ssh.send('terminal length 0\n')
-                ssh.send('show running-config interface gpon-olt_{}\n'.format(pon_port))
-                time.sleep(1)
-                run_cfg_raw = ssh.recv(5000).decode('utf-8')
-                run_cfg_raw = run_cfg_raw.split('\n')
+            PON_PORT_CFG = ('show running-config interface gpon-olt_{}\n'.format(pon_port),)
+#            with super().invoke_shell() as ssh:
+#                ssh.send('terminal length 0\n')
+#                ssh.send('show running-config interface gpon-olt_{}\n'.format(pon_port))
+#                time.sleep(1)
+#                run_cfg_raw = ssh.recv(5000).decode('utf-8')
+            run_cfg_raw = send_commands(PON_PORT_CFG)
+            run_cfg_raw = run_cfg_raw.split('\n')
             #получаем список зарегистрированных ону
             cur_onu_list = []
             for line in run_cfg_raw:
@@ -140,13 +143,20 @@ class OltZTE(paramiko.SSHClient, Olt):
         re_lan_speed = 'Speed status:\s+(\S.+)'
         re_rx = '\s(\-.+\(dbm\))'
 
-        ifindex_raw = self.send_command('show gpon onu by sn {}'.format(onu))
+        ONU_BY_SN = ('show gpon onu by sn {}'.format(onu),)
+
+        ifindex_raw = self.send_commands(ONU_BY_SN)
         ifindex = re.search(re_ifindex, ifindex_raw).group()
 
-        detail_info = self.send_command('show gpon onu detail-info gpon-onu_{}'.format(ifindex))
-        lan_port = self.send_command('show gpon remote-onu interface eth gpon-onu_{}'.format(ifindex))
-        onu_rx = self.send_command('show pon power onu-rx gpon-onu_{}'.format(ifindex))
-        olt_rx = self.send_command('show pon power olt-rx gpon-onu_{}'.format(ifindex))
+        DETAIL_INFO = ('show gpon onu detail-info gpon-onu_{}'.format(ifindex),)
+        LAN_STATE = ('show gpon remote-onu interface eth gpon-onu_{}'.format(ifindex),)
+        ONU_RX = ('show pon power onu-rx gpon-onu_{}'.format(ifindex),)
+        OLT_RX = ('show pon power olt-rx gpon-onu_{}'.format(ifindex),)
+
+        detail_info = self.send_commands(DETAIL_INFO)
+        lan_port = self.send_commands(LAN_STATE)
+        onu_rx = self.send_commands(ONU_RX)
+        olt_rx = self.send_commands(OLT_RX)
 
         onu_info['state'] = re.search(re_state, detail_info).groups()[0]
         if onu_info['state'] == 'working':

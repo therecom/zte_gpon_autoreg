@@ -72,3 +72,8 @@ bdcom:
 show mac address-table interface epON 0/1:1
 -------
 
+
+result = re.findall(re_offline, line)
+result[-1] - последняее совпадение в таблице с регистрацией/отрегистрацией ону.
+применять в случаях, когда ону не в сети
+ 
