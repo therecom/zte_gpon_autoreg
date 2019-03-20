@@ -3,16 +3,22 @@ import paramiko
 import time
 import re
 from jinja2 import Environment, FileSystemLoader
+from olt_logging import send_log
 
 class OltZTE(paramiko.SSHClient, Olt):
 
     SLOTS = set(range(1, 129))
+    logger = send_log('send_command')
 
     def __init__(self, host, username='', password=''):
         self.host = host
         self.username = username
         self.password = password
         super().__init__()
+
+    def log_test(self, message):
+        self.logger.warning(message)
+
 
     def connect(self):
         """Tries to make ssh connection. Log if errors occurs """
@@ -42,14 +48,21 @@ class OltZTE(paramiko.SSHClient, Olt):
         # logging
 
     def send_commands(self, commands, timeout=1):
-    ''' input:  tuple
-        output: str
-    '''
+
         with super().invoke_shell() as ssh:
-            for command in commands:
-                ssh.send('{}\n'.format(command))
+            if type(commands) == str:
+                ssh.send('{}\n'.format(commands))
+            else:
+                for command in commands:
+                    ssh.send('{}\n'.format(command))
             time.sleep(timeout)
             output = ssh.recv(5000).decode('utf-8')
+            if 'Invalid input' in output:
+                self.logger.warning('Invalid input detected while executing command:\n"{}"'
+                .format(commands))
+            else:
+                self.logger.debug(output)
+
 
         return output
 
