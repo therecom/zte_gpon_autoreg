@@ -1,0 +1,545 @@
+10:28:00 - send_command - INFO: 
+
+show gpon onu by sn ZTEGC1307CDF
+SearchResult          
+-----------------
+gpon-onu_1/1/1:1
+merch-gpon#
+10:28:01 - send_command - INFO: 
+
+show gpon onu detail-info gpon-onu_1/1/1:1
+
+ONU interface:         gpon-onu_1/1/1:1
+  Name:                ONU-1:1
+  Type:                GPON
+  State:               ready
+  Admin state:         enable
+  Phase state:         working
+  Authentication mode: sn
+  SN Bind:             enable with SN check
+  Serial number:       ZTEGC1307CDF
+  Password:            
+  Device ID:           
+  Description:         ONU-1:1
+  Vport mode:          gemport
+  DBA Mode:            Hybrid
+  ONU Status:          enable
+  OMCI BW Profile:     enable
+  Line Profile:        line-gpon
+  Service Profile:     CVLAN_2             
+  Alarm Profile:       N/A
+  Performance Profile: N/A
+  ONU Distance:        3247m
+  Online Duration:     166h 08m 41s
+  FEC:                 none
+  1PPS+ToD:            disable
+------------------------------------------
+       Authpass Time          OfflineTime             Cause
+   1   2019-03-13 12:19:17    0000-00-00 00:00:00              
+   2   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   3   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   4   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   5   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   6   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   7   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   8   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   9   0000-00-00 00:00:00    0000-00-00 00:00:00              
+  10   0000-00-00 00:00:00    0000-00-00 00:00:00              
+merch-gpon#
+10:28:02 - send_command - INFO: 
+
+show gpon remote-onu interface eth gpon-onu_1/1/1:1
+
+Interface:     eth_0/1
+Speed status:  full-100
+Operate status:enable
+Admin status:  unlock
+Arc:           0  
+Arc-interval   0
+Expect-type:   0
+Speed config:  auto
+Eth-loop:      disable
+Max-frame:     1632
+Pause-time:    0
+Wiring :       dce
+BridgeOrIP:    either
+PPPOE-filter:  disable
+Power-control: disable
+merch-gpon#
+10:28:03 - send_command - INFO: 
+
+show pon power onu-rx gpon-onu_1/1/1:1
+Onu                 Rx power   
+------------------------------------
+gpon-onu_1/1/1:1    -20.262(dbm)
+merch-gpon#
+10:28:04 - send_command - INFO: 
+
+show pon power olt-rx gpon-onu_1/1/1:1
+Rx power: -25.767(dbm)
+merch-gpon#
+10:30:54 - send_command - WARNING: 
+
+show gpon onu by sn ZTEGC1307CDF
+SearchResult          
+-----------------
+gpon-onu_1/1/1:1
+merch-gpon#
+10:30:55 - send_command - WARNING: 
+
+show gpon onu detail-info gpon-onu_1/1/1:1
+
+ONU interface:         gpon-onu_1/1/1:1
+  Name:                ONU-1:1
+  Type:                GPON
+  State:               ready
+  Admin state:         enable
+  Phase state:         working
+  Authentication mode: sn
+  SN Bind:             enable with SN check
+  Serial number:       ZTEGC1307CDF
+  Password:            
+  Device ID:           
+  Description:         ONU-1:1
+  Vport mode:          gemport
+  DBA Mode:            Hybrid
+  ONU Status:          enable
+  OMCI BW Profile:     enable
+  Line Profile:        line-gpon
+  Service Profile:     CVLAN_2             
+  Alarm Profile:       N/A
+  Performance Profile: N/A
+  ONU Distance:        3247m
+  Online Duration:     166h 11m 35s
+  FEC:                 none
+  1PPS+ToD:            disable
+------------------------------------------
+       Authpass Time          OfflineTime             Cause
+   1   2019-03-13 12:19:17    0000-00-00 00:00:00              
+   2   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   3   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   4   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   5   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   6   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   7   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   8   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   9   0000-00-00 00:00:00    0000-00-00 00:00:00              
+  10   0000-00-00 00:00:00    0000-00-00 00:00:00              
+merch-gpon#
+10:30:56 - send_command - WARNING: 
+
+show gpon remote-onu interface eth gpon-onu_1/1/1:1
+
+Interface:     eth_0/1
+Speed status:  full-100
+Operate status:enable
+Admin status:  unlock
+Arc:           0  
+Arc-interval   0
+Expect-type:   0
+Speed config:  auto
+Eth-loop:      disable
+Max-frame:     1632
+Pause-time:    0
+Wiring :       dce
+BridgeOrIP:    either
+PPPOE-filter:  disable
+Power-control: disable
+merch-gpon#
+10:30:57 - send_command - WARNING: 
+
+show pon power onu-rx gpon-onu_1/1/1:1
+Onu                 Rx power   
+------------------------------------
+gpon-onu_1/1/1:1    -20.262(dbm)
+merch-gpon#
+10:30:58 - send_command - WARNING: 
+
+show pon power olt-rx gpon-onu_1/1/1:1
+Rx power: -25.767(dbm)
+merch-gpon#
+10:58:34 - send_command - INFO: 
+
+test_info_message
+
+10:58:35 - send_command - INFO: 
+
+test_info_message
+
+10:58:36 - send_command - INFO: 
+
+test_info_message
+
+10:58:37 - send_command - INFO: 
+
+test_info_message
+
+10:58:38 - send_command - INFO: 
+
+test_info_message
+
+--------------------
+asctime - name - levelname: message
+
+--------------------
+asctime - name - levelname: message
+
+--------------------
+asctime - name - levelname: message
+
+--------------------
+asctime - name - levelname: message
+
+--------------------
+asctime - name - levelname: message
+
+--------------------
+11:06:29 - send_command - INFO: 
+
+test_info_message
+
+11:11:12 - send_command - INFO:
+
+
+test_info_message
+--------------------------------------------------------------------------------
+11:11:31 - send_command - INFO:
+
+
+test_info_message
+--------------------------------------------------------------------------------
+11:11:32 - send_command - INFO:
+
+
+test_info_message
+--------------------------------------------------------------------------------
+11:11:33 - send_command - INFO:
+
+
+test_info_message
+--------------------------------------------------------------------------------
+11:11:34 - send_command - INFO:
+
+
+test_info_message
+--------------------------------------------------------------------------------
+11:11:35 - send_command - INFO:
+
+
+test_info_message
+--------------------------------------------------------------------------------
+11:13:45 - send_command - INFO:
+show gp on u
+%Code 32310-GPONSRV : No related information to show.
+merch-gpon#
+--------------------------------------------------------------------------------
+11:14:15 - send_command - INFO:
+s
+% Ambiguous command:  "s"
+merch-gpon#h
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#o
+% Incomplete command.
+merch-gpon#w
+% Ambiguous command:  "w"
+merch-gpon# 
+merch-gpon#i
+% Incomplete command.
+merch-gpon#p
+% Ambiguous command:  "p"
+merch-gpon# 
+merch-gpon#i
+% Incomplete command.
+merch-gpon#n
+% Incomplete command.
+merch-gpon#t
+% Ambiguous command:  "t"
+merch-gpon#e
+% Ambiguous command:  "e"
+merch-gpon#r
+% Ambiguous command:  "r"
+merch-gpon#f
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#a
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#c
+% Ambiguous command:  "c"
+merch-gpon#e
+% Ambiguous command:  "e"
+merch-gpon# 
+merch-gpon#b
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#r
+% Ambiguous command:  "r"
+merch-gpon#
+--------------------------------------------------------------------------------
+11:14:26 - send_command - INFO:
+s
+% Ambiguous command:  "s"
+merch-gpon#h
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#o
+% Incomplete command.
+merch-gpon#w
+% Ambiguous command:  "w"
+merch-gpon# 
+merch-gpon#i
+% Incomplete command.
+merch-gpon#p
+% Ambiguous command:  "p"
+merch-gpon# 
+merch-gpon#i
+% Incomplete command.
+merch-gpon#n
+% Incomplete command.
+merch-gpon#t
+% Ambiguous command:  "t"
+merch-gpon#e
+% Ambiguous command:  "e"
+merch-gpon#r
+% Ambiguous command:  "r"
+merch-gpon#f
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#a
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#c
+% Ambiguous command:  "c"
+merch-gpon#e
+% Ambiguous command:  "e"
+merch-gpon# 
+merch-gpon#b
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#r
+% Ambiguous command:  "r"
+merch-gpon#
+--------------------------------------------------------------------------------
+11:14:34 - send_command - INFO:
+s
+% Ambiguous command:  "s"
+merch-gpon#h
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#o
+% Incomplete command.
+merch-gpon#w
+% Ambiguous command:  "w"
+merch-gpon# 
+merch-gpon#i
+% Incomplete command.
+merch-gpon#p
+% Ambiguous command:  "p"
+merch-gpon# 
+merch-gpon#i
+% Incomplete command.
+merch-gpon#n
+% Incomplete command.
+merch-gpon#t
+% Ambiguous command:  "t"
+merch-gpon#e
+% Ambiguous command:  "e"
+merch-gpon#r
+% Ambiguous command:  "r"
+merch-gpon#f
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#a
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#c
+% Ambiguous command:  "c"
+merch-gpon#e
+% Ambiguous command:  "e"
+merch-gpon# 
+merch-gpon#b
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#r
+% Ambiguous command:  "r"
+merch-gpon#
+--------------------------------------------------------------------------------
+11:14:59 - send_command - INFO:
+s
+% Ambiguous command:  "s"
+merch-gpon#h
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#o
+% Incomplete command.
+merch-gpon#w
+% Ambiguous command:  "w"
+merch-gpon# 
+merch-gpon#i
+% Incomplete command.
+merch-gpon#p
+% Ambiguous command:  "p"
+merch-gpon# 
+merch-gpon#i
+% Incomplete command.
+merch-gpon#n
+% Incomplete command.
+merch-gpon#t
+% Ambiguous command:  "t"
+merch-gpon#e
+% Ambiguous command:  "e"
+merch-gpon#r
+% Ambiguous command:  "r"
+merch-gpon#f
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#a
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#c
+% Ambiguous command:  "c"
+merch-gpon#e
+% Ambiguous command:  "e"
+merch-gpon# 
+merch-gpon#b
+           ^
+% Invalid input detected at '^' marker.
+merch-gpon#r
+% Ambiguous command:  "r"
+merch-gpon#
+--------------------------------------------------------------------------------
+11:18:08 - send_command - INFO:
+show gp on u
+%Code 32310-GPONSRV : No related information to show.
+merch-gpon#
+--------------------------------------------------------------------------------
+11:18:21 - send_command - INFO:
+show gpon onu by sn ZTEGC1307CDF
+SearchResult          
+-----------------
+gpon-onu_1/1/1:1
+merch-gpon#
+--------------------------------------------------------------------------------
+11:18:22 - send_command - INFO:
+show gpon onu detail-info gpon-onu_1/1/1:1
+
+ONU interface:         gpon-onu_1/1/1:1
+  Name:                ONU-1:1
+  Type:                GPON
+  State:               ready
+  Admin state:         enable
+  Phase state:         working
+  Authentication mode: sn
+  SN Bind:             enable with SN check
+  Serial number:       ZTEGC1307CDF
+  Password:            
+  Device ID:           
+  Description:         ONU-1:1
+  Vport mode:          gemport
+  DBA Mode:            Hybrid
+  ONU Status:          enable
+  OMCI BW Profile:     enable
+  Line Profile:        line-gpon
+  Service Profile:     CVLAN_2             
+  Alarm Profile:       N/A
+  Performance Profile: N/A
+  ONU Distance:        3247m
+  Online Duration:     166h 59m 02s
+  FEC:                 none
+  1PPS+ToD:            disable
+------------------------------------------
+       Authpass Time          OfflineTime             Cause
+   1   2019-03-13 12:19:17    0000-00-00 00:00:00              
+   2   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   3   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   4   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   5   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   6   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   7   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   8   0000-00-00 00:00:00    0000-00-00 00:00:00              
+   9   0000-00-00 00:00:00    0000-00-00 00:00:00              
+  10   0000-00-00 00:00:00    0000-00-00 00:00:00              
+merch-gpon#
+--------------------------------------------------------------------------------
+11:18:23 - send_command - INFO:
+show gpon remote-onu interface eth gpon-onu_1/1/1:1
+
+Interface:     eth_0/1
+Speed status:  full-100
+Operate status:enable
+Admin status:  unlock
+Arc:           0  
+Arc-interval   0
+Expect-type:   0
+Speed config:  auto
+Eth-loop:      disable
+Max-frame:     1632
+Pause-time:    0
+Wiring :       dce
+BridgeOrIP:    either
+PPPOE-filter:  disable
+Power-control: disable
+merch-gpon#
+--------------------------------------------------------------------------------
+11:18:24 - send_command - INFO:
+show pon power onu-rx gpon-onu_1/1/1:1
+Onu                 Rx power   
+------------------------------------
+gpon-onu_1/1/1:1    -20.262(dbm)
+merch-gpon#
+--------------------------------------------------------------------------------
+11:18:25 - send_command - INFO:
+show pon power olt-rx gpon-onu_1/1/1:1
+Rx power: -25.767(dbm)
+merch-gpon#
+--------------------------------------------------------------------------------
+11:18:46 - send_command - INFO:
+show ip interf br
+interface     IP-Address      Mask            AdminStatus PhyStatus Protocol
+vlan296       10.134.48.1     255.255.252.0   up          up        up
+vlan368       10.133.248.41   255.255.255.0   up          up        up
+merch-gpon#
+--------------------------------------------------------------------------------
+11:18:54 - send_command - INFO:
+show ip interf bra
+                            ^
+% Invalid input detected at '^' marker.
+merch-gpon#
+--------------------------------------------------------------------------------
+11:24:01 - send_command - INFO:
+show gp on u
+%Code 32310-GPONSRV : No related information to show.
+merch-gpon#
+--------------------------------------------------------------------------------
+11:24:23 - send_command - WARNING:
+Invalid input detected while executing command:
+show ip inteasd
+--------------------------------------------------------------------------------
+11:25:44 - WARNING:
+Invalid input detected while executing command:
+"show ada"
+--------------------------------------------------------------------------------
+12:50:17 - WARNING:
+Invalid input detected while executing command:
+"show sad"
+--------------------------------------------------------------------------------
+12:51:24 - INFO:
+show gp on u
+%Code 32310-GPONSRV : No related information to show.
+merch-gpon#
+--------------------------------------------------------------------------------
+12:52:07 - WARNING:
+Invalid input detected while executing command:
+"show www"
+--------------------------------------------------------------------------------
+12:52:19 - INFO:
+show ip inter br
+interface     IP-Address      Mask            AdminStatus PhyStatus Protocol
+vlan296       10.134.48.1     255.255.252.0   up          up        up
+vlan368       10.133.248.41   255.255.255.0   up          up        up
+merch-gpon#
+--------------------------------------------------------------------------------
+17:02:42 - WARNING:
+london is a capital of Great Britan
+--------------------------------------------------------------------------------
