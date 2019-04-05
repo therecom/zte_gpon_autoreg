@@ -8,11 +8,11 @@ def send_log(module_name):
 #    console = logging.StreamHandler()
 #    console.setLevel(logging.DEBUG)
     logfile = logging.FileHandler('logfile_test1.log')
-    logfile.setLevel(logging.INFO)
+    logfile.setLevel(logging.DEBUG)
 
 #    formatter_console = logging.Formatter('{asctime} - {name} - {levelname} - {message}',
 #                                  datefmt='%H:%M:%S', style='{')
-    message = "{} - {}:\n{}\n{}".format('{asctime}',
+    message = "\n{} - {}:\n{}\n{}".format('{asctime}',
                 '{levelname}','{message}','-'*80)
 
     formatter_logfile = logging.Formatter(message, datefmt='%H:%M:%S', style='{')
