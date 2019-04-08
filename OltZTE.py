@@ -56,6 +56,7 @@ class OltZTE(paramiko.SSHClient, Olt):
                     ssh.send('{}\n'.format(command))
             time.sleep(timeout)
             output = ssh.recv(5000).decode('utf-8')
+
             if 'Invalid input' in output:
                 self.logger.warning('''Host %s:\nInvalid input detected while executing command "%s"'''
                 , self.host, commands)
@@ -69,6 +70,7 @@ class OltZTE(paramiko.SSHClient, Olt):
         values: {pon_port1: [sn1, sn2, snN], ...}"""
         UNCFG_ONU = ('show gp on u',)
         output = self.send_commands(UNCFG_ONU)
+
         if 'No related' in output:
             uncfg_onu_list = False
             self.logger.info('''Host %s:\nNo onus finded.''', self.host)
@@ -76,11 +78,13 @@ class OltZTE(paramiko.SSHClient, Olt):
             uncfg_onu_list = []
             re_uncfg_onu = 'u_(?P<PON_PORT>\S+):\d\s+(?P<SN>\S+)'
             uncfg_onu_raw = re.finditer(re_uncfg_onu, output)
+
             for match in uncfg_onu_raw:
                 port = match.group('PON_PORT')
                 sn = match.group('SN')
                 uncfg_onu_list.append([port, sn])
             self.logger.info('''Host %s:\nFinded uncfg onus:\n%s''', self.host, uncfg_onu_list)
+
         return uncfg_onu_list
 
     def get_free_slots(self, pon_port):
@@ -92,6 +96,7 @@ class OltZTE(paramiko.SSHClient, Olt):
         pon_port_cfg_raw = self.send_commands(pon_port_cmd)
         pon_port_cfg_raw = pon_port_cfg_raw.split('\n')
         cur_onu_list = []
+
         for line in pon_port_cfg_raw:
             if 'type' in line:
                 cur_onu_list.append(line)
@@ -100,21 +105,31 @@ class OltZTE(paramiko.SSHClient, Olt):
             cur_onu_nums.append(int(line.split()[1]))
         cur_onu_nums = set(cur_onu_nums)
         free_slots = self.SLOTS - cur_onu_nums
+        if free_slots:
+            pass
+        else:
+            self.logger.warning('''Host %s: No free slots available on gpon-olt_%s.''', self.host, pon_port)
 
         return free_slots
-
 
     def get_data(self, onu_list, cvlan_start):
         '''return list of lists like [['1/1/2', zte1, 24, 1025], ... ] '''
         free_slots = {}
         data = []
+
         for onu in onu_list:
             pon_port, sn = onu
+            print(sn)
             if not pon_port in free_slots.keys():
                 free_slots[pon_port] = self.get_free_slots(pon_port)
-            free_slot = free_slots[pon_port].pop()
-            cvlan = cvlan_start + (128 * (int(pon_port.split('/')[-1]) - 1)) + free_slot
-            data.append([pon_port, sn, free_slot, cvlan])
+
+            if free_slots[pon_port]:
+                free_slot = free_slots[pon_port].pop()
+                cvlan = cvlan_start + (128 * (int(pon_port.split('/')[-1]) - 1)) + free_slot
+                data.append([pon_port, sn, free_slot, cvlan])
+            else:
+                self.logger.warning('''Host %s: No free slot for onu %s on gpon-olt_%s.''', self.host, sn, pon_port)
+
         return data
 
 #    def get_data(self, uncfg_onu_dict, CVLAN_START):
@@ -154,13 +169,16 @@ class OltZTE(paramiko.SSHClient, Olt):
         env = Environment(loader=FileSystemLoader('.'), trim_blocks=True)
         onu_template = env.get_template(template)
         onu_config = onu_template.render(data=data)
+
         return onu_config
 
     def register_onu(self, CVLAN_START, template):
         uncfg_onu_dict = self.get_uncfg_onu()
+
         if uncfg_onu_dict:
             reg_data = self.get_data(uncfg_onu_dict, CVLAN_START)
             onu_config = self.generate_cfg_from_template(template, reg_data)
+
             with super().invoke_shell() as ssh:
                 ssh.send('conf t\n')
                 ssh.send(onu_config)
