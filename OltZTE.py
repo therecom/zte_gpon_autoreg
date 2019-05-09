@@ -26,6 +26,7 @@ class OltZTE(paramiko.SSHClient, Olt):
 
 
         try:
+            self.logger.info('''Connecting to %s''', self.host)
             super().set_missing_host_key_policy(paramiko.AutoAddPolicy())
             super().connect(self.host,
                             username=self.username,
@@ -33,21 +34,20 @@ class OltZTE(paramiko.SSHClient, Olt):
                             look_for_keys=False,
                             allow_agent=False)
 
+            self.logger.info('''Access granted(%s)''', self.host)
+
+            with super().invoke_shell() as ssh:
+                ssh.send('terminal length 0\n')
+                time.sleep(1)
+
         except paramiko.AuthenticationException:
-            self.logger.info('''Authentication error occured while connecting to %s''', self.host)
-            print("Authentication error occured.")
+            self.logger.critical('''Authentication error occured while connecting to %s''', self.host)
+#            print("Authentication error occured.")
 
         except ssh_exception.NoValidConnectionsError:
-            self.logger.info('''Connection error occured while connecting to %s''', self.host)
-            print("Connection error occured.")
+            self.logger.critical('''Can`t connect to %s''', self.host)
+#            print("Connection error occured.")
 
-#        except paramiko.NoValidConnectionsError:
-#            self.logger.info('''Timeout error occured while connecting to %s''', self.host)
-#            print("Timeout error occured.")
-
-        with super().invoke_shell() as ssh:
-            ssh.send('terminal length 0\n')
-            time.sleep(1)
         # FIXME
         # logging
 
@@ -73,12 +73,11 @@ class OltZTE(paramiko.SSHClient, Olt):
     def get_uncfg_onu(self):
         """Returns dict with PON ports as keys and uncfg ONUs' sn's lists as
         values: {pon_port1: [sn1, sn2, snN], ...}"""
-        UNCFG_ONU = ('show gp on u',)
-        output = self.send_commands(UNCFG_ONU)
+        output = self.send_commands('show gpon onu uncfg')
 
         if 'No related' in output:
             uncfg_onu_list = False
-            self.logger.info('''Host %s:\nNo unconfigured onus finded.''', self.host)
+            self.logger.info('''Host %s:\nNo unconfigured onus found.''', self.host)
         else:
             uncfg_onu_list = []
             re_uncfg_onu = 'u_(?P<PON_PORT>\S+):\d\s+(?P<SN>\S+)'
@@ -88,7 +87,7 @@ class OltZTE(paramiko.SSHClient, Olt):
                 port = match.group('PON_PORT')
                 sn = match.group('SN')
                 uncfg_onu_list.append([port, sn])
-            self.logger.info('''Host %s:\nFinded uncfg onus:\n%s''', self.host, uncfg_onu_list)
+            self.logger.info('''Host %s:\nFound uncfg onus:\n%s''', self.host, uncfg_onu_list)
 
         return uncfg_onu_list
 
@@ -106,10 +105,12 @@ class OltZTE(paramiko.SSHClient, Olt):
             if 'type' in line:
                 cur_onu_list.append(line)
         cur_onu_nums = []
+
         for line in cur_onu_list:
             cur_onu_nums.append(int(line.split()[1]))
         cur_onu_nums = set(cur_onu_nums)
         free_slots = self.SLOTS - cur_onu_nums
+
         if free_slots:
             pass
         else:
@@ -124,9 +125,12 @@ class OltZTE(paramiko.SSHClient, Olt):
 
         for onu in onu_list:
             pon_port, sn = onu
+
             if not pon_port in free_slots.keys():
                 free_slots[pon_port] = self.get_free_slots(pon_port)
+
             if free_slots[pon_port]:
+
                 if not len(free_slots[pon_port]) == 0:
                     free_slot = free_slots[pon_port].pop()
                     cvlan = cvlan_start + (128 * (int(pon_port.split('/')[-1]) - 1)) + free_slot

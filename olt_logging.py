@@ -1,8 +1,8 @@
 import logging
 
-def send_log(module_name):
+def send_log(MODULE_NAME):
 
-    logger = logging.getLogger(module_name)
+    logger = logging.getLogger(MODULE_NAME)
     logger.setLevel(logging.DEBUG)
 
 #    console = logging.StreamHandler()
@@ -16,7 +16,6 @@ def send_log(module_name):
                 '{levelname}','{message}','-'*80)
 
     formatter_logfile = logging.Formatter(message, datefmt='%H:%M:%S', style='{')
-
 
 #    console.setFormatter(formatter_console)
 #    logger.addHandler(console)
