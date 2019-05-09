@@ -4,11 +4,12 @@ import time
 import re
 from jinja2 import Environment, FileSystemLoader
 from olt_logging import send_log
+from paramiko import ssh_exception
 
 class OltZTE(paramiko.SSHClient, Olt):
 
     SLOTS = set(range(1, 129))
-    logger = send_log('test')
+    logger = send_log('test') # DEBUG, WARNING, INFO
 
     def __init__(self, host, username='', password=''):
         self.host = host
@@ -23,6 +24,7 @@ class OltZTE(paramiko.SSHClient, Olt):
     def connect(self):
         """Tries to make ssh connection. Log if errors occurs """
 
+
         try:
             super().set_missing_host_key_policy(paramiko.AutoAddPolicy())
             super().connect(self.host,
@@ -32,13 +34,16 @@ class OltZTE(paramiko.SSHClient, Olt):
                             allow_agent=False)
 
         except paramiko.AuthenticationException:
+            self.logger.info('''Authentication error occured while connecting to %s''', self.host)
             print("Authentication error occured.")
 
-        except paramiko.SSHException:
+        except ssh_exception.NoValidConnectionsError:
+            self.logger.info('''Connection error occured while connecting to %s''', self.host)
             print("Connection error occured.")
 
-        except paramiko.TimeouteError:
-            print("Timeout error occured.")
+#        except paramiko.NoValidConnectionsError:
+#            self.logger.info('''Timeout error occured while connecting to %s''', self.host)
+#            print("Timeout error occured.")
 
         with super().invoke_shell() as ssh:
             ssh.send('terminal length 0\n')
@@ -73,7 +78,7 @@ class OltZTE(paramiko.SSHClient, Olt):
 
         if 'No related' in output:
             uncfg_onu_list = False
-            self.logger.info('''Host %s:\nNo onus finded.''', self.host)
+            self.logger.info('''Host %s:\nNo unconfigured onus finded.''', self.host)
         else:
             uncfg_onu_list = []
             re_uncfg_onu = 'u_(?P<PON_PORT>\S+):\d\s+(?P<SN>\S+)'
@@ -119,51 +124,17 @@ class OltZTE(paramiko.SSHClient, Olt):
 
         for onu in onu_list:
             pon_port, sn = onu
-            print(sn)
             if not pon_port in free_slots.keys():
                 free_slots[pon_port] = self.get_free_slots(pon_port)
-
             if free_slots[pon_port]:
-                free_slot = free_slots[pon_port].pop()
-                cvlan = cvlan_start + (128 * (int(pon_port.split('/')[-1]) - 1)) + free_slot
-                data.append([pon_port, sn, free_slot, cvlan])
-            else:
-                self.logger.warning('''Host %s: No free slot for onu %s on gpon-olt_%s.''', self.host, sn, pon_port)
+                if not len(free_slots[pon_port]) == 0:
+                    free_slot = free_slots[pon_port].pop()
+                    cvlan = cvlan_start + (128 * (int(pon_port.split('/')[-1]) - 1)) + free_slot
+                    data.append([pon_port, sn, free_slot, cvlan])
+                else:
+                    self.logger.warning('''Host %s: No free slot for onu %s on gpon-olt_%s.''', self.host, sn, pon_port)
 
         return data
-
-#    def get_data(self, uncfg_onu_dict, CVLAN_START):
-#        """Returns dict with PON ports as keys and sorted lists of free
-#        slots as values.
-#        input: olt_ss, словарь незарегистрированных ону, старт диапазона для cvlan
-#        output: словарь вида uncfg_onu_dict = {'1/1/2': [{'HWTC111': [7, 133]}, {'HWTC222': [12, 137]}], '1/2/1': [{'HWTC333': [5, 3077]}]}
-#        """
-#        for pon_port in uncfg_onu_dict.keys(): # для каждого пон порта ищем список зарегистрированных ону из конфига
-#            gpon_port = int(pon_port.split('/')[-1]) # pon_port - полный номер(1/1/2), gpon_port - номер порта на плате(2)
-#            #получаем конфиг пон порта в виде списка строк
-#            PON_PORT_CFG = ('show running-config interface gpon-olt_{}\n'.format(pon_port),)
-#            run_cfg_raw = self.send_commands(PON_PORT_CFG)
-#            run_cfg_raw = run_cfg_raw.split('\n')
-#            #получаем список зарегистрированных ону
-#            cur_onu_list = []
-#            for line in run_cfg_raw:
-#                if 'type' in line:
-#                    cur_onu_list.append(line) # зарегистрированные ону
-#            #получаем номера зарег-х ону, считаем свободные порты
-#            cur_onu_nums = []
-#            for line in cur_onu_list:
-#                cur_onu_nums.append(int(line.split()[1]))
-#            all_onu_nums = list(range(1,129))
-#            for num in cur_onu_nums:
-#                all_onu_nums.remove(num)
-#            #назначаем свободный порт и cvlan незарегистрированным ону
-#            for sn in uncfg_onu_dict[pon_port]:
-#                for value in sn:
-#                    free_onu_num = all_onu_nums.pop(0)
-#                    cvlan = CVLAN_START + (128 * (gpon_port - 1)) + free_onu_num
-#                    sn[value] = [free_onu_num]
-#                    sn[value].append(cvlan)
-#        return uncfg_onu_dict
 
     def generate_cfg_from_template(self, template, data):
         env = Environment(loader=FileSystemLoader('.'), trim_blocks=True)
@@ -172,22 +143,11 @@ class OltZTE(paramiko.SSHClient, Olt):
 
         return onu_config
 
-    def register_onu(self, CVLAN_START, template):
-        uncfg_onu_dict = self.get_uncfg_onu()
 
-        if uncfg_onu_dict:
-            reg_data = self.get_data(uncfg_onu_dict, CVLAN_START)
-            onu_config = self.generate_cfg_from_template(template, reg_data)
+    def register_onu(self, onu_config):
+        self.send_commands('conf t')
+        self.send_commands(onu_config)
 
-            with super().invoke_shell() as ssh:
-                ssh.send('conf t\n')
-                ssh.send(onu_config)
-                time.sleep(5)
-                result =  ssh.recv(5000).decode('utf-8')
-            print(result)
-        else:
-            print('No uncfg onu')
-        #pass  # FIXME
 
     def get_onu_information(self, onu):
 
