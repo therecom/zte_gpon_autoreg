@@ -1,16 +1,14 @@
 from OltZTE import OltZTE
 
-olt_pass = '/home/sanduka/olt_pass'
-
-with open(olt_pass, 'r') as file:
-    user, passw = file.read().split()
-
-hosts = ['10.133.244.2']
-
+HOSTS = ['10.133.244.2']
+OLT_PASS = 'olt_pass'
 TEMPLATE = 'zte_gpon_onu.jnj'
 CVLAN_START = 1001
 
-for host in hosts:
+with open(OLT_PASS, 'r') as file:
+    user, passw = file.read().split()
+
+for host in HOSTS:
     client = OltZTE(host,user,passw)
     client.connect()
 
@@ -21,4 +19,3 @@ for host in hosts:
         if reg_data:
             reg_template = client.generate_cfg_from_template(TEMPLATE, reg_data)
             client.register_onu(reg_template)
-

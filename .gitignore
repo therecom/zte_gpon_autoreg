@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+asd
+logfile*
+olt_pass
 # vim8 temp files
 *.swp
 

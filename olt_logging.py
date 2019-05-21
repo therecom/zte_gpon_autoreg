@@ -7,7 +7,7 @@ def send_log(MODULE_NAME):
 
 #    console = logging.StreamHandler()
 #    console.setLevel(logging.DEBUG)
-    logfile = logging.FileHandler('logfile_test1.log')
+    logfile = logging.FileHandler('logfile.log')
     logfile.setLevel(logging.INFO)
 
 #    formatter_console = logging.Formatter('{asctime} - {name} - {levelname} - {message}',
