@@ -110,8 +110,8 @@ class OltZTE(paramiko.SSHClient, Olt):
             cur_onu_nums.append(int(line.split()[1]))
         cur_onu_nums = set(cur_onu_nums)
         free_slots = self.SLOTS - cur_onu_nums
-
         if free_slots:
+            self.logger.info('''Host %s: %s onu slots available on gpon-olt_%s.''', self.host, len(free_slots), pon_port)
             pass
         else:
             self.logger.warning('''Host %s: No free slots available on gpon-olt_%s.''', self.host, pon_port)
@@ -122,6 +122,7 @@ class OltZTE(paramiko.SSHClient, Olt):
         '''return list of lists like [['1/1/2', zte1, 24, 1025], ... ] '''
         free_slots = {}
         data = []
+        onu_to_reg = []
 
         for onu in onu_list:
             pon_port, sn = onu
@@ -135,9 +136,10 @@ class OltZTE(paramiko.SSHClient, Olt):
                     free_slot = free_slots[pon_port].pop()
                     cvlan = cvlan_start + (128 * (int(pon_port.split('/')[-1]) - 1)) + free_slot
                     data.append([pon_port, sn, free_slot, cvlan])
+                    onu_to_reg.append(sn)
                 else:
                     self.logger.warning('''Host %s: No free slot for onu %s on gpon-olt_%s.''', self.host, sn, pon_port)
-
+        self.logger.info('''Host %s: Onues: %s will be registered.''', self.host, onu_to_reg)
         return data
 
     def generate_cfg_from_template(self, template, data):

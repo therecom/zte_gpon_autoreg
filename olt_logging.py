@@ -3,12 +3,12 @@ import logging
 def send_log(MODULE_NAME):
 
     logger = logging.getLogger(MODULE_NAME)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
 #    console = logging.StreamHandler()
 #    console.setLevel(logging.DEBUG)
     logfile = logging.FileHandler('logfile_test1.log')
-    logfile.setLevel(logging.DEBUG)
+    logfile.setLevel(logging.INFO)
 
 #    formatter_console = logging.Formatter('{asctime} - {name} - {levelname} - {message}',
 #                                  datefmt='%H:%M:%S', style='{')
