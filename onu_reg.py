@@ -1,6 +1,6 @@
 from OltZTE import OltZTE
 
-HOSTS = ['10.133.244.2']
+HOSTS = ['192.168.100.2']
 OLT_PASS = 'olt_pass'
 TEMPLATE = 'zte_gpon_onu.jnj'
 CVLAN_START = 1001

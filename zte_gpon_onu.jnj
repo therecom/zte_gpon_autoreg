@@ -1,11 +1,10 @@
 {% for port, sn, slot, cvlan in data %}
 interface gpon-olt_{{ port }}
 onu {{ slot }} type GPON sn {{ sn }}
-onu {{ slot }} profile  line line-gpon
+onu {{ slot }} profile  line line-gpon1
 exit
 interface gpon-onu_{{ port }}:{{ slot }}
-switchport mode hybrid vport 1
-switchport default vlan {{ cvlan }} vport 1
+switchport mode trunk vport 1
 exit
 pon-onu-mng gpon-onu_{{ port }}:{{ slot }}
 gemport 1 flow 1

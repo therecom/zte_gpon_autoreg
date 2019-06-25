@@ -146,13 +146,18 @@ class OltZTE(paramiko.SSHClient, Olt):
         env = Environment(loader=FileSystemLoader('.'), trim_blocks=True)
         onu_template = env.get_template(template)
         onu_config = onu_template.render(data=data)
+        self.logger.debug('''Host %s:\n%s''', self.host, onu_config)
 
         return onu_config
 
 
     def register_onu(self, onu_config):
         self.send_commands('conf t')
-        self.send_commands(onu_config)
+        time.sleep(1)
+        for line in onu_config.split('\n'):
+            self.send_commands(line)
+            time.sleep(1)
+#        self.send_commands(onu_config)
 
 
     def get_onu_information(self, onu):
