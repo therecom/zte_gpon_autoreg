@@ -2,3 +2,41 @@
 2. собираем список незарегистрированных ону
 3. если есть незарегистрированные ону - получаем данные для регистрации(с использованием get_free_slots)
 
+
+проверка на дубликаты:
+
+1.метод get_uncfg_onu возвращает список незарегистрированных ону "uncfg_onu_list"
+
+[['1/1/1', 'ZTEGC1246C48'],['1/1/2', 'ZTEGC5555431']]
+
+2.пройтись по списку циклом и проверить зарегистрированны ли эти ону на других портах.
+
+get_duplicate:
+
+duplicate = []     
+for onu in uncfg:
+    output = client.send_commands('show gpon onu by sn {}'.format(onu[1]))
+    print(output)
+    if 'gpon-onu_'in output:
+        duplicate.append(output)
+
+дубликейт будет содержать в себе список выводов с найдеными ону
+['show gpon onu by sn ZTEGC1246C48\r\nSearchResult          \r\n-----------------\r\ngpon-onu_1/1/1:120\r\nmerch-gpon#']
+
+вывод нужно распарсить. Отсюда нам нужен серийный номер, пон порт, номер ону.ZTEGC1246C48, gpon-ol1_1/1/1 и ону 120
+
+re = 'gpon-onu_(?P<PON_PORT>\d+/\d+/\d):(?P<LLID>\d+)'
+
+Парсить будем налету, что бы в duplicate попадали списки [ZTEGC1246C48, 1/1/1, 120]
+
+Возвращаем список списков типа: [[ZTEGC1246C48, 1/1/1, 120],[ZTEGC1246C49, 1/2/1, 5]]
+
+del_duplicate:
+
+идем по списку и удаляем все дубликаты методом send_commands:
+
+for onu in duplicate:
+    remove_onu = ['interface gpon-olt_{}'.format(onu[1]),'no onu {}'.format(onu[2]),'exit']
+    send_commands('remove_onu')
+    self.logger.warning('''Host %s: ONU %s was removed from PON port %s : %s.''', self.host, onu[0], onu[1], onu[2])
+

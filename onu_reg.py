@@ -3,7 +3,7 @@ from OltZTE import OltZTE
 HOSTS = ['192.168.100.2']
 OLT_PASS = 'olt_pass'
 TEMPLATE = 'zte_gpon_onu.jnj'
-CVLAN_START = 1001
+CVLAN_START = 1000
 
 with open(OLT_PASS, 'r') as file:
     user, passw = file.read().split()

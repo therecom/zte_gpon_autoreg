@@ -56,7 +56,7 @@ class OltZTE(paramiko.SSHClient, Olt):
         with super().invoke_shell() as ssh:
             if type(commands) == str:
                 ssh.send('{}\n'.format(commands))
-            else:
+            elif type(commands) == list:
                 for command in commands:
                     ssh.send('{}\n'.format(command))
             time.sleep(timeout)
@@ -90,6 +90,29 @@ class OltZTE(paramiko.SSHClient, Olt):
             self.logger.info('''Host %s:\nFound uncfg onus:\n%s''', self.host, uncfg_onu_list)
 
         return uncfg_onu_list
+
+    def get_duplicate(self,uncfg_onu_list):
+        regex = 'gpon-onu_(?P<PON_PORT>\d+/\d+/\d):(?P<LLID>\d+)'
+        dup = []
+        for onu in uncfg_onu_list:
+            output = self.send_commands('show gpon onu by sn {}'.format(onu[1]))
+            if 'gpon-onu_'in output:
+                clear_out = re.finditer(regex, output)
+                for match in clear_out:
+                    port = match.group('PON_PORT')
+                    llid = match.group('LLID')
+                    dup.append([onu[1], port, llid])
+                    self.logger.warning('''Host %s: Duplicate onu %s detected on gpon-olt_%s.'''
+, self.host, onu[1], port)
+        return dup
+
+    def del_duplicate(self,dup):
+        for onu in dup:
+            remove_onu =  ['conf t','interface gpon-olt_{}'.format(onu[1]),'no onu {}'
+.format(onu[2]),'end']
+            self.send_commands(remove_onu)
+            self.logger.warning('''Host %s: ONU %s was removed from PON port %s : %s.'''
+, self.host, onu[0], onu[1], onu[2])
 
     def get_free_slots(self, pon_port):
         """
