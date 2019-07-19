@@ -1,7 +1,7 @@
 {% for port, sn, slot, cvlan in data %}
 interface gpon-olt_{{ port }}
 onu {{ slot }} type GPON sn {{ sn }}
-onu {{ slot }} profile  line line-gpon1
+onu {{ slot }} profile  line line-gpon
 exit
 interface gpon-onu_{{ port }}:{{ slot }}
 switchport mode trunk vport 1

@@ -6,6 +6,7 @@ __pycache__/
 asd
 logfile*
 olt_pass
+program.pid
 # vim8 temp files
 *.swp
 
